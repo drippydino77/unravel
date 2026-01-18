@@ -1,0 +1,1 @@
+export type FontStyle = "playful" | "elegant" | "modern";
