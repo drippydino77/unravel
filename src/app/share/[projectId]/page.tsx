@@ -1,16 +1,13 @@
 "use client";
 
-import CardPreviewScreen from "@/components/feature/share/CardPreview";
 import { useRouter } from "next/navigation";
+import CardPreview from "@/components/feature/view/CardPreview";
 import VideoGesture from "@/components/feature/share/VideoGestureBubble";
 import { useAnimationSteps } from "@/hooks/useAnimationSteps";
 
 export default function SharePage() {
   const router = useRouter();
 
-  const handleBack = () => {
-    router.back();
-  };
   const {
     stepIndex,
     step,
@@ -20,15 +17,13 @@ export default function SharePage() {
     totalSteps,
     reset,
     nextStep,
-  } = useAnimationSteps({auto: false});
-
+  } = useAnimationSteps({ auto: false });
 
   return (
     <>
-      {/* Main card preview screen */}
-      <CardPreviewScreen
-        link="card.app/xyz123"
-        onBack={handleBack}
+      {/* Main card preview */}
+      <CardPreview
+        onBack={() => router.back()}
         stepIndex={stepIndex}
         step={step}
         isComplete={isComplete}
@@ -39,7 +34,10 @@ export default function SharePage() {
       />
 
       {/* Gesture camera bubble */}
-      <VideoGesture onNextStep={nextStep} step={step}/>
+      <VideoGesture
+        step={step}
+        onNextStep={nextStep}
+      />
     </>
   );
 }

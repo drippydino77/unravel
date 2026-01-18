@@ -21,7 +21,7 @@ export default function VideoGesture({ onNextStep, step }: VideoGestureProps) {
     {
       from: "Open_Palm",
       to: "Closed_Fist",
-      maxDurationMs: 3000,
+      maxDurationMs: 1000,
       minScore: 0.3,
       onTrigger: () => {
         console.log("✊ FAST GRAB DETECTED!", step);
