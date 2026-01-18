@@ -1,12 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import CardPreview from "@/components/feature/view/CardPreview";
+import { useRouter, useParams } from "next/navigation";
+import CardPreview from "@/components/feature/share/CardPreview";
 import VideoGesture from "@/components/feature/share/VideoGestureBubble";
 import { useAnimationSteps } from "@/hooks/useAnimationSteps";
 
+
 export default function SharePage() {
   const router = useRouter();
+  const params = useParams();
+  const projectId = params.projectId as string;
 
   const {
     stepIndex,
@@ -31,6 +34,7 @@ export default function SharePage() {
         handleAnimationComplete={handleAnimationComplete}
         totalSteps={totalSteps}
         reset={reset}
+        link={`localhost:3000/view/${projectId}`}
       />
 
       {/* Gesture camera bubble */}

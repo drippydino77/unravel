@@ -161,8 +161,8 @@ export default function CardPreviewScreen({
       )}
 
       {/* Main Content - Show when in mouse mode OR when card is revealed in gesture mode */}
-      {(mode === "mouse" || showCard) && (
-        <main className="flex-1 flex flex-col items-center justify-center p-6 gap-12 absolute bottom-20 left-1/2 -translate-x-1/2">
+      {(
+        <main className="flex-1 flex flex-col items-center justify-center p-6 gap-12 absolute top-20 left-1/2 -translate-x-1/2">
           <LinkDisplayCard link={link} />
         </main>
       )}
