@@ -3,20 +3,34 @@ import CameraPreview from "@/components/ui/CameraPreview";
 import { useCamera } from "@/hooks/useCamera";
 import { useGestureRecognizer } from "@/hooks/useGestureRecogniser";
 
-export default function VideoGesture() {
-  const videoRef = useCamera();
+type Step =
+  | { type: "gesture"; freezeFrame: number }
+  | { type: "animation"; frames: readonly [number, number] };
 
-  // Use gesture transitions instead of a single onGesture
+type VideoGestureProps = {
+  onNextStep?: () => void;
+  step: Step;
+};
+
+export default function VideoGesture({ onNextStep, step }: VideoGestureProps) {
+  const videoRef = useCamera();
+  
+  // Use gesture transitions and call nextStep when detected
+  // Only trigger if current step type is "gesture"
   useGestureRecognizer(videoRef, [
     {
       from: "Open_Palm",
       to: "Closed_Fist",
-      maxDurationMs: 1000, // more human-speed friendly
-      minScore: 0.7,
-      onTrigger: () => console.log("✊ FAST GRAB DETECTED!"),
+      maxDurationMs: 3000,
+      minScore: 0.3,
+      onTrigger: () => {
+        console.log("✊ FAST GRAB DETECTED!", step);
+        if (step.type === "gesture") {
+          onNextStep?.(); // Only call nextStep during gesture steps
+        }
+      },
     },
   ]);
   
-
   return <CameraPreview ref={videoRef} />;
 }

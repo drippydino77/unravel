@@ -5,29 +5,37 @@ import CardCustomizationSidebar from "@/components/feature/create/CardCustomizat
 import AnimationPreview from "@/components/feature/create/AnimationPreview";
 import { LuMenu, LuX } from "react-icons/lu";
 import { ColorTheme } from "@/types/color";
-import debounce from "lodash.debounce";; // npm i lodash.debounce
+import debounce from "lodash.debounce";
+import { useProject } from "@/hooks/useProject";
 
 type FontStyle = "playful" | "elegant" | "modern";
 
 export default function Page() {
   const params = useParams();
-  console.log(params)
   const projectId = Array.isArray(params?.projectId)
     ? params?.projectId[0]
     : params?.projectId;
-
   const router = useRouter();
 
-  // Sidebar state
-  const [name, setName] = useState("");
-  const [message, setMessage] = useState("");
-  const [fontStyle, setFontStyle] = useState<FontStyle>("playful");
-  const [colorTheme, setColorTheme] = useState<ColorTheme>("black");
   const [saveStatus, setSaveStatus] = useState<"saving" | "saved" | "error">("saved");
-
 
   // Mobile sidebar toggle
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { 
+    name, 
+    message, 
+    fontStyle, 
+    colorTheme, 
+    templateId,
+    setName, 
+    setMessage, 
+    setFontStyle, 
+    setColorTheme,
+    setTemplateId,
+    isLoading, 
+    error 
+  } = useProject(projectId);
+  
 
   /** -------------------
    * Auto-save logic
@@ -36,41 +44,40 @@ export default function Page() {
     debounce(async (data) => {
       try {
         setSaveStatus("saving");
-  
+
         const projectKey = localStorage.getItem(`project-auth:${projectId}`);
         if (!projectKey) return;
-  
+
         const res = await fetch(`/api/projects/${projectId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ projectKey, newData: data }),
         });
-  
+
         if (!res.ok) throw new Error("Failed to auto-save");
-  
+
         setSaveStatus("saved");
-  
-        // Optional: revert back to idle after 2s
       } catch (err) {
         console.error("Auto-save error:", err);
         setSaveStatus("error");
       }
     }, 1000)
   ).current;
-  
-  
 
-  // Trigger auto-save whenever any of these change
+  // Trigger auto-save whenever any of these change (but skip initial load)
+  const isInitialMount = useRef(true);
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
     autoSave({ name, message, fontStyle, colorTheme });
-    // Cancel debounce on unmount
+    
     return () => {
       autoSave.cancel();
     };
   }, [name, message, fontStyle, colorTheme, autoSave]);
-
-  if (!projectId) return <p>Project ID missing</p>;
-
 
   /** -------------------
    * Handlers
@@ -87,6 +94,15 @@ export default function Page() {
   const handleBack = () => {
     router.push(`/templates?projectId=${projectId}`);
   };
+
+  if (!projectId) return <p>Project ID missing</p>;
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p>Loading project...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -120,15 +136,17 @@ export default function Page() {
         onPreviewShare={handlePreviewShare}
         onBack={handleBack}
         status={saveStatus}
+        projectId={projectId}
       />
 
       {/* Main Content */}
       <AnimationPreview
-        templateId={projectId} // or pass actual templateId if stored in data
-        fontStyle={fontStyle}
-        colorTheme={colorTheme}
-      />
-      
+  templateId={templateId}
+  fontStyle={fontStyle}
+  colorTheme={colorTheme}
+  name={name}
+  message={message}
+/>
     </div>
   );
 }

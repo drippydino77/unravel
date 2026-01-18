@@ -24,6 +24,7 @@ type CardCustomizationSidebarProps = {
   message?: string;
   fontStyle?: FontStyle;
   colorTheme?: ColorTheme;
+  projectId: string
   onNameChange?: (name: string) => void;
   onMessageChange?: (message: string) => void;
   onFontStyleChange?: (style: FontStyle) => void;
@@ -52,6 +53,7 @@ export default function CardCustomizationSidebar({
   onBack,
   status,
   className,
+  projectId
 }: CardCustomizationSidebarProps) {
   return (
     <ScrollArea
@@ -129,7 +131,7 @@ export default function CardCustomizationSidebar({
       </div>
 
       {/* Preview & Share Button */}
-      <Link href={"/share"}>
+      <Link href={`/share/${projectId}`}>
         <ButtonWithIcon
           onClick={onPreviewShare}
           className="mt-7 flex items-center justify-center"
