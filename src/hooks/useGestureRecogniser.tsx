@@ -12,11 +12,14 @@ export type GestureTransition = {
 
 export function useGestureRecognizer(
   videoRef: React.RefObject<HTMLVideoElement | null>,
-  transitions: GestureTransition[]
+  transitions: GestureTransition[],
+  onGestureLoaded: ()=>void
 ) {
   const recognizerRef = useRef<GestureRecognizer | null>(null);
   const lastGestureRef = useRef<{ name: string; timestamp: number } | null>(null);
   const firedRef = useRef<Record<string, boolean>>({});
+
+  useEffect(()=>{console.log("useGestureRecogniser hook called")},[])
 
   useEffect(() => {
     let stopped = false;
@@ -40,6 +43,7 @@ export function useGestureRecognizer(
         });
 
         console.log("GestureRecognizer initialized");
+        onGestureLoaded()
 
         const loop = () => {
           if (stopped) return;
@@ -102,5 +106,5 @@ export function useGestureRecognizer(
       recognizerRef.current?.close();
       console.log("GestureRecognizer stopped");
     };
-  }, [videoRef, transitions]);
+  }, []);
 }

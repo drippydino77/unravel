@@ -24,12 +24,16 @@ type UseAnimationStepsOptions = {
 
 export function useAnimationSteps(options: UseAnimationStepsOptions = {}) {
   const { auto = true, gestureDuration = 2000 } = options;
-  
+
   const [stepIndex, setStepIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const lottieRef = useRef<any>(null);
-  
+
   const step = STEP_FRAMES[stepIndex];
+
+  useEffect(() => {
+    console.log("step changed", step)
+  }, [step])
 
   // Handle animation complete
   const handleAnimationComplete = () => {
@@ -44,6 +48,13 @@ export function useAnimationSteps(options: UseAnimationStepsOptions = {}) {
       });
     }
   };
+
+  useEffect((
+  ) => {
+    if (isComplete) {
+      lottieRef.current.goToAndStop(383, true)
+    }
+  }, [isComplete])
 
   // Auto-advance gesture steps (only if auto is true)
   useEffect(() => {

@@ -2,6 +2,7 @@
 import CameraPreview from "@/components/ui/CameraPreview";
 import { useCamera } from "@/hooks/useCamera";
 import { useGestureRecognizer } from "@/hooks/useGestureRecogniser";
+import { useEffect, useRef } from "react";
 
 type Step =
   | { type: "gesture"; freezeFrame: number }
@@ -10,11 +11,14 @@ type Step =
 type VideoGestureProps = {
   onNextStep?: () => void;
   step: Step;
+  setGestureModelLoaded: (gestureModelLoaded: boolean) => void
 };
 
-export default function VideoGesture({ onNextStep, step }: VideoGestureProps) {
+export default function VideoGesture({ onNextStep, step, setGestureModelLoaded }: VideoGestureProps) {
   const videoRef = useCamera();
-  
+  const stepRef = useRef(step)
+  useEffect(() => { stepRef.current = step }, [step])
+
   // Use gesture transitions and call nextStep when detected
   // Only trigger if current step type is "gesture"
   useGestureRecognizer(videoRef, [
@@ -24,13 +28,17 @@ export default function VideoGesture({ onNextStep, step }: VideoGestureProps) {
       maxDurationMs: 1000,
       minScore: 0.3,
       onTrigger: () => {
-        console.log("✊ FAST GRAB DETECTED!", step);
-        if (step.type === "gesture") {
+        const latestStep = stepRef.current
+        console.log("✊ FAST GRAB DETECTED!", latestStep);
+        if (latestStep.type === "gesture") {
           onNextStep?.(); // Only call nextStep during gesture steps
+          console.log("NEXT GESTURE TRIGGERED", latestStep)
         }
       },
     },
-  ]);
-  
+  ], () => {
+    setGestureModelLoaded(true)
+  });
+
   return <CameraPreview ref={videoRef} />;
 }

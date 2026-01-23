@@ -19,7 +19,7 @@ export default function Letter({
       {...props}
     >
       {/* Paper */}
-      <div className="bg-[#f9f7f3] shadow-2xl relative p-3">
+      <div className="bg-[#f9f7f3] shadow-2xl relative p-3 animate-letter-in">
       {(
         <button
           onClick={onClose}

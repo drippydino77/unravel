@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import CardPreview from "@/components/feature/share/CardPreview";
+import CardPreview from "@/components/feature/view/CardPreview";
 import VideoGesture from "@/components/feature/share/VideoGestureBubble";
 import { useAnimationSteps } from "@/hooks/useAnimationSteps";
 

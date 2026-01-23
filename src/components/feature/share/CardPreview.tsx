@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Player from "lottie-react";
 import BackButton from "@/components/ui/BackButton";
 import ToggleButton from "@/components/ui/ToggleButton";
@@ -30,6 +30,8 @@ type CardPreviewScreenProps = {
   handleAnimationComplete: () => void;
   totalSteps: number;
   reset: () => void;
+  onNextStep: ()=>void;
+  gestureModelLoaded: boolean
 };
 
 const colorBackgrounds: Record<ColorTheme, string> = {
@@ -37,7 +39,7 @@ const colorBackgrounds: Record<ColorTheme, string> = {
 };
 
 export default function CardPreviewScreen({
-  link = "card.app/xyz123",
+  link = "localhost:3000",
   onBack,
   className,
   stepIndex,
@@ -47,9 +49,9 @@ export default function CardPreviewScreen({
   handleAnimationComplete,
   totalSteps,
   reset,
+  gestureModelLoaded,
 }: CardPreviewScreenProps) {
   const [mode, setMode] = useState<InteractionMode>("gesture");
-  const [showCard, setShowCard] = useState(false);
 
   const params = useParams();
   const projectId = params.projectId as string;
@@ -67,13 +69,14 @@ export default function CardPreviewScreen({
     { id: "gesture", label: "Hand Gesture", icon: <LuVideo size={16} /> },
   ];
 
-  const handleModeChange = (id: string) => {
-    setMode(id as InteractionMode);
-    if (id === "gesture") {
-      setShowCard(false);
-      reset();
-    }
-  };
+
+  useEffect(()=>{
+    console.log("STEP:",step)
+  },[step])
+
+  useEffect(()=>{
+    lottieRef.current.goToAndStop(2, true)
+  },[gestureModelLoaded, lottieRef])
 
   return (
     <div
@@ -86,15 +89,10 @@ export default function CardPreviewScreen({
       {/* Header with Back Button and Toggle */}
       <header className="flex items-center justify-between p-6 relative z-20">
         <BackButton label="Back to Edit" onClick={onBack} className="text-white"/>
-        <ToggleButton
-          options={toggleOptions}
-          selected={mode}
-          onSelect={handleModeChange}
-        />
       </header>
 
       {/* Gesture Mode - Animation Flow */}
-      {mode === "gesture" && !showCard && (
+      {mode === "gesture" && (
         <>
           {/* Always render Player in its own layer */}
           <div className="absolute inset-0 flex items-center justify-center">
@@ -120,11 +118,11 @@ export default function CardPreviewScreen({
               <ButtonWithIcon
                 className="animate-in fade-in duration-300 pointer-events-auto"
                 onClick={() => {
-                  setShowCard(true);
+                  setShowLetter(true);
                   console.log("Reveal card clicked!");
                 }}
               >
-                Reveal Card
+                Reveal Letter
               </ButtonWithIcon>
             </div>
           )}
@@ -140,23 +138,34 @@ export default function CardPreviewScreen({
             )}
           </div>
           {showLetter && (
-        <div className="absolute inset-x-0 top-0 bottom-20 flex items-center justify-center overflow-auto bg-[var(--brand)] z-50">
-          <Letter
-            className="shadow-[0_20px_60px_0px_var(--brand)]"
-            onClose={() => setShowLetter(false)}
-            style={{
-              fontFamily: fontStyle === "playful"
-                ? "'Comic Neue', 'Comic Sans MS', cursive"
-                : fontStyle === "elegant"
-                  ? "'Crimson Text', Georgia, serif"
-                  : "'Inter', -apple-system, sans-serif"
-            }}
-          >          <p className="mb-4">Dear Friend,</p>
-            <p className="mb-4">{message}</p>
-            <p className="mt-8">With warm regards, {name}</p>
-          </Letter>
-        </div>
-      )}
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    
+    {/* Blur + dim background */}
+    <div className="absolute inset-0 bg-black/30 backdrop-blur-md" />
+
+    {/* Letter container */}
+    <div className="relative animate-letter-in">
+      <Letter
+        className="shadow-[0_20px_60px_0px_var(--brand)]"
+        onClose={() => setShowLetter(false)}
+        style={{
+          fontFamily:
+            fontStyle === "playful"
+              ? "'Comic Neue', 'Comic Sans MS', cursive"
+              : fontStyle === "elegant"
+              ? "'Crimson Text', Georgia, serif"
+              : "'Inter', -apple-system, sans-serif",
+        }}
+      >
+        <p className="mb-4">Dear Friend,</p>
+        <p className="mb-4">{message}</p>
+        <p className="mt-8">With warm regards, {name}</p>
+      </Letter>
+    </div>
+
+  </div>
+)}
+
         </>
       )}
 
